@@ -47,10 +47,7 @@ import io.ballerina.stdlib.http.transport.contract.HttpClientConnector;
 import io.ballerina.stdlib.http.transport.contract.HttpClientConnectorListener;
 import io.ballerina.stdlib.http.transport.contract.HttpResponseFuture;
 import io.ballerina.stdlib.http.transport.contract.exceptions.ClientConnectorException;
-import io.ballerina.stdlib.http.transport.message.HttpCarbonMessage;
-import io.ballerina.stdlib.http.transport.message.HttpMessageDataStreamer;
-import io.ballerina.stdlib.http.transport.message.PooledDataStreamerFactory;
-import io.ballerina.stdlib.http.transport.message.ResponseHandle;
+import io.ballerina.stdlib.http.transport.message.*;
 import io.ballerina.stdlib.mime.util.EntityBodyHandler;
 import io.ballerina.stdlib.mime.util.HeaderUtil;
 import io.ballerina.stdlib.mime.util.MultipartDataSource;
@@ -58,6 +55,7 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -491,6 +489,14 @@ public abstract class AbstractHTTPAction {
         public void onMessage(HttpCarbonMessage inboundResponseMessage) {
             this.dataContext.notifyInboundResponseStatus
                     (HttpUtil.createResponseStruct(inboundResponseMessage), null);
+            String contentType = inboundResponseMessage.getHeader("Content-Type");
+            if (contentType != null && contentType.contains("text/event-stream")) {
+                SseEventStream eventStream = new SseEventStream();
+                inboundResponseMessage.setSseEventStream(eventStream);
+                inboundResponseMessage.getHttpContentAsync().setMessageListener(httpContent -> {
+                    eventStream.addSseEvent(httpContent.content().toString(CharsetUtil.UTF_8));
+                });
+            }
         }
 
         @Override

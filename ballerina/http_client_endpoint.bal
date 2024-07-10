@@ -745,6 +745,10 @@ isolated function processResponse(Response|ClientError response, TargetType targ
             return performDataValidation(payload, targetType);
         }
         return payload;
+    }
+    if targetType is typedesc<stream<SseEvent, error?>> {
+        stream<SseEvent, error?> eventStream = check response.getSseEventStream();
+        // TODO: implement here
     } else {
         panic error GenericClientError("invalid payload target type");
     }

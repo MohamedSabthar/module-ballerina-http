@@ -42,11 +42,9 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * HTTP based representation for HttpCarbonMessage.
@@ -80,6 +78,15 @@ public class HttpCarbonMessage {
     private String requestUrl;
     private Integer httpStatusCode;
     private boolean contentReleased = false;
+    private SseEventStream sseEventStream;
+
+    public SseEventStream getSseEventStream() {
+        return this.sseEventStream;
+    }
+
+    public void setSseEventStream(SseEventStream sseEventStream) {
+        this.sseEventStream = sseEventStream;
+    }
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;

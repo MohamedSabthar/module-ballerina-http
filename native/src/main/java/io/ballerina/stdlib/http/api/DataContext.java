@@ -50,6 +50,7 @@ public class DataContext {
         this.clientConnector = null;
         this.requestObj = null;
         this.correlatedMessage = inboundRequestMsg;
+
     }
 
     public void notifyInboundResponseStatus(BObject inboundResponse, BError httpConnectorError) {
