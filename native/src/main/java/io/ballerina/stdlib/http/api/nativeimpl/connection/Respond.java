@@ -80,6 +80,7 @@ public class Respond extends ConnectionAction {
 
     public static Object nativeRespondWithDataCtx(Environment env, BObject connectionObj, BObject outboundResponseObj,
                                                   DataContext dataContext) {
+        // System.out.println("nativeRespondWithDataCtx");
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         if (invokeResponseInterceptor(env, inboundRequestMsg, outboundResponseObj, connectionObj, dataContext)) {
             return null;

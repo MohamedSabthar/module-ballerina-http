@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.http.transport.message;
 
+import io.ballerina.stdlib.http.api.HttpUtil;
 import io.ballerina.stdlib.http.transport.contract.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -140,7 +141,8 @@ public class HttpMessageDataStreamer {
             if (dataHolder == null) {
                 dataHolder = getBuffer();
             }
-            if (dataHolder.writableBytes() != 0) {
+            // Do not wait to fill the entire buffer if the content type is text/event-stream
+            if (!HttpUtil.hasEventStreamContentType(httpCarbonMessage) && dataHolder.writableBytes() != 0) {
                 dataHolder.writeByte((byte) b);
             } else {
                 try {

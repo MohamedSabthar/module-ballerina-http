@@ -80,14 +80,7 @@ import io.ballerina.stdlib.http.transport.message.HttpCarbonMessage;
 import io.ballerina.stdlib.http.transport.message.HttpMessageDataStreamer;
 import io.ballerina.stdlib.io.utils.IOConstants;
 import io.ballerina.stdlib.io.utils.IOUtils;
-import io.ballerina.stdlib.mime.util.EntityBodyChannel;
-import io.ballerina.stdlib.mime.util.EntityBodyHandler;
-import io.ballerina.stdlib.mime.util.EntityHeaderHandler;
-import io.ballerina.stdlib.mime.util.EntityWrapper;
-import io.ballerina.stdlib.mime.util.HeaderUtil;
-import io.ballerina.stdlib.mime.util.MimeUtil;
-import io.ballerina.stdlib.mime.util.MultipartDataSource;
-import io.ballerina.stdlib.mime.util.MultipartDecoder;
+import io.ballerina.stdlib.mime.util.*;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -401,7 +394,11 @@ public class HttpUtil {
         Service httpService = (Service) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
         if (httpService != null) {
             HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
-            HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
+            if (HttpUtil.hasEventStreamContentType(outboundResponseMsg)) {
+                HttpUtil.setChunkingHeader(HttpConstants.ALWAYS, outboundResponseMsg);
+            } else {
+                HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
+            }
             if (httpService.getMediaTypeSubtypePrefix() != null) {
                 HttpUtil.setMediaTypeSubtypePrefix(httpService.getMediaTypeSubtypePrefix(), outboundResponseMsg);
             }
@@ -2002,6 +1999,10 @@ public class HttpUtil {
                    Objects.nonNull(bodyField);
         }
         return false;
+    }
+
+    public static boolean hasEventStreamContentType(HttpCarbonMessage message) {
+        return HttpUtil.getContentTypeFromTransportMessage(message).startsWith(MimeConstants.TEXT_EVENT_STREAM);
     }
 
     private HttpUtil() {
