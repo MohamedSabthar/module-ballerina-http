@@ -74,8 +74,6 @@ isolated function getEventText(SseEvent event) returns string {
         foreach string line in lines {
             eventText += string `${DATA}: ${line}` + LINE_BREAK;
         }
-    } else {
-        eventText += string `${DATA}: ` + LINE_BREAK;
     }
     eventText += LINE_BREAK;
     return eventText;
