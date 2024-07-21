@@ -825,7 +825,7 @@ service /headerparamservice on HeaderBindingIdealEP {
 
 
 #### 2.3.5. Return types
-The resource method supports anydata, error?, http:Response and http:StatusCodeResponse as return types. 
+The resource method supports `anydata`, `error?`, `http:Response`, `http:StatusCodeResponse` and `stream<http:SseEvent, error?>` as return types. 
 Whenever user returns a particular output, that will result in an HTTP response to the caller who initiated the 
 call. Therefore, user does not necessarily depend on the `http:Caller` and its remote methods to proceed with the 
 response. 
@@ -855,6 +855,7 @@ Based on the return types respective header value is added as the `Content-type`
 | int, float, decimal, boolean                                          | application/json            |
 | map\<json\>, table<map\<json\>>, map\<json\>[], table<map\<json\>>)[] | application/json            |
 | http:StatusCodeResponse                                               | derived from the body field |
+| stream<http:SseEvent, error?>                                         | text/event-stream           |
 
 ##### 2.3.5.1. Status Code Response
 

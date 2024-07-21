@@ -80,8 +80,8 @@ isolated function getEventText(SseEvent event) returns string {
 }
 
 isolated function toString(anydata data) returns string {
-    if data is json {
-        return data.toJsonString();
+    if data is xml {
+        return data.toString();
     }
-    return data.toString();
+    return data.toJsonString();
 }

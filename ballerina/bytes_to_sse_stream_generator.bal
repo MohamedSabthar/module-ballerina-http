@@ -141,7 +141,7 @@ isolated function parseSseEvent(string event) returns SseEvent|error {
             }
         }
     }
-    SseEvent sseEvent = {data};
+    SseEvent sseEvent = data is () ? {data} : {data: convertToJsonOrXml(data)};
     if id is string {
         sseEvent.id = id;
     }
@@ -159,4 +159,16 @@ isolated function parseSseEvent(string event) returns SseEvent|error {
 
 isolated function removeLeadingSpace(string line) returns string {
     return line.startsWith(" ") ? line.substring(1) : line;
+}
+
+isolated function convertToJsonOrXml(string data) returns json|xml|string {
+    json|error jsonVal = data.fromJsonString();
+    if jsonVal is json {
+        return jsonVal;
+    }
+    xml|error xmlValue = xml:fromString(data);
+    if xmlValue is xml {
+        return xmlValue;
+    }
+    return data;
 }

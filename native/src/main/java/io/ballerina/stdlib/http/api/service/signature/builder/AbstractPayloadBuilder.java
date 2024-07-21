@@ -19,12 +19,9 @@
 package io.ballerina.stdlib.http.api.service.signature.builder;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypedescType;
-import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.*;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.stdlib.mime.util.HeaderUtil;
@@ -170,6 +167,11 @@ public abstract class AbstractPayloadBuilder {
     public static boolean hasHttpResponseType(BTypedesc targetTypeDesc) {
         Type targetType = TypeUtils.getImpliedType(targetTypeDesc.getDescribingType());
         return hasHttpResponseTypeInternal(targetType);
+    }
+
+    public static BMap getEmptyRecordValue(BTypedesc targetTypeDesc) {
+        Type constrainedType = ((StreamType)targetTypeDesc.getDescribingType()).getConstrainedType();
+        return constrainedType.getEmptyValue();
     }
 
     private static boolean hasHttpResponseTypeInternal(Type targetType) {

@@ -328,7 +328,8 @@ public class Response {
     #
     # + return - A SseEvent stream from which the `http:SseEvent` can be read or `http:ClientError` in case of errors
     public isolated function getSseEventStream() returns stream<SseEvent, error?>|ClientError {
-        return getSseEventStream(self);
+        stream<SseEvent, error?> s = [].toStream();
+        return getSseEventStream(self, typeof s);
     }
 
     # Extracts body parts from the response. If the content type is not a composite media type, an error is returned.

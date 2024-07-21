@@ -748,19 +748,22 @@ isolated function processResponse(Response|ClientError response, TargetType targ
         return payload;
     }
     if targetType is typedesc<stream<SseEvent, error?>> {
-        return getSseEventStream(response);
+        return getSseEventStream(response, targetType);
     } else {
         panic error GenericClientError("invalid payload target type");
     }
 }
 
-isolated function getSseEventStream(Response response) returns stream<SseEvent, error?>|ClientError {
+isolated function getSseEventStream(Response response, typedesc<stream<SseEvent, error?>> targetType) returns stream<SseEvent, error?>|ClientError {
+    SseEvent completionType = getEmptyRecordValue(targetType);
     check validateEventStreamContentType(response);
     stream<byte[], io:Error?>? byteStream = response.statusCode == STATUS_NO_CONTENT ? () : check response.getByteStream(1);
     BytesToEventStreamGenerator bytesToEventStreamGenerator = new (byteStream);
     stream<SseEvent, error?> eventStream = new (bytesToEventStreamGenerator);
-    return eventStream;
+    return from var event in eventStream select check event.cloneWithType(typeof completionType);
 }
+
+
 
 isolated function validateEventStreamContentType(Response response) returns ClientError? {
     string|HeaderNotFoundError contentType = response.getHeader(CONTENT_TYPE);
@@ -790,5 +793,9 @@ isolated function externProcessResponseNew(Response response, typedesc<StatusCod
 } external;
 
 isolated function hasHttpResponseType(typedesc targetTypeDesc) returns boolean = @java:Method {
+    'class: "io.ballerina.stdlib.http.api.service.signature.builder.AbstractPayloadBuilder"
+} external;
+
+isolated function getEmptyRecordValue(typedesc<stream<SseEvent, error?>> targetTypeDesc) returns SseEvent = @java:Method {
     'class: "io.ballerina.stdlib.http.api.service.signature.builder.AbstractPayloadBuilder"
 } external;
