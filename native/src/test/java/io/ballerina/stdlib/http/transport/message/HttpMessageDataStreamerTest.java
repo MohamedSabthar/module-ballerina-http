@@ -19,12 +19,16 @@
 package io.ballerina.stdlib.http.transport.message;
 
 import io.ballerina.stdlib.http.transport.util.client.http2.MessageGenerator;
-import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.*;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.InflaterInputStream;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * A unit test class for Transport module HttpMessageDataStreamer class functions.
@@ -54,7 +58,44 @@ public class HttpMessageDataStreamerTest {
         httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         Assert.assertNotNull(httpMessageDataStreamer.getInputStream());
         Assert.assertNull(httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()));
-
     }
 
+    @Test
+    public void testEventStreamChunking() throws IOException {
+        HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, OK));
+        httpResponse.setHeader("Content-Type", "text/event-stream");
+        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpResponse);
+        OutputStream outputStream = httpMessageDataStreamer.getOutputStream();
+        writeDummyEvent(outputStream);
+        EntityCollector entityCollector = httpResponse.getBlockingEntityCollector();
+        HttpContent content = entityCollector.getHttpContent();
+        int currentChunkCount = 0;
+        while (!(content instanceof LastHttpContent)) {
+            currentChunkCount++;
+            content = entityCollector.getHttpContent();
+        }
+        Assert.assertEquals(currentChunkCount, 4);
+    }
+
+    // This method writes a server-sent event payload to the output stream
+    private static void writeDummyEvent(OutputStream outputStream) throws IOException {
+        final int CHUNK_SIZE = 8192;
+        final int PAYLOAD_SIZE = CHUNK_SIZE * 4 - 10; // Reduced by few bytes to ensure chunking
+                                                       // happens if two newlines are found
+        final String DATA_PREFIX = "data: ";
+        final byte[] dataBytes = DATA_PREFIX.getBytes();
+
+        // Write the data prefix to the output stream
+        outputStream.write(dataBytes);
+        for (int i = dataBytes.length; i < PAYLOAD_SIZE; i++) {
+            outputStream.write('A');
+        }
+
+        // Write two newline characters to indicate the end of the event
+        outputStream.write('\n');
+        outputStream.write('\n');
+
+        // Close the output stream
+        outputStream.close();
+    }
 }
