@@ -475,7 +475,8 @@ public class Response {
         self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
-    # Sets a `http:SseEvent` stream as the payload.
+    # Sets an `http:SseEvent` stream as the payload, along with the Content-Type and Cache-Control 
+    # headers set to 'text/event-stream' and 'no-cache', respectively.
     #
     # + eventStream - SseEvent stream, which needs to be set to the response
     public isolated function setSseEventStream(stream<SseEvent, error?> eventStream) {

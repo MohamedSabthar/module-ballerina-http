@@ -17,10 +17,11 @@
 import ballerina/http;
 import ballerina/lang.runtime;
 import ballerina/test;
-import ballerina/io;
 
 listener http:Listener http1SseListener = new http:Listener(http1SsePort, httpVersion = http:HTTP_1_1);
 listener http:Listener http2SseListener = new http:Listener(http2SsePort, httpVersion = http:HTTP_2_0);
+final http:Client http1SseClient = check new (string `http://localhost:${http1SsePort}`, httpVersion = http:HTTP_1_1);
+final http:Client http2SseClient = check new (string `http://localhost:${http2SsePort}`, httpVersion = http:HTTP_2_0);
 
 class SseEventGenerator {
     private final int eventCount;
@@ -65,16 +66,25 @@ service /sse on http2SseListener {
     }
 }
 
-final http:Client http1SseClient = check new ("http://localhost:" + http1SsePort.toString(), httpVersion = http:HTTP_1_1);
-
 @test:Config {}
 function testHttp1ResponseHeadersForSseEventStream() returns error? {
     http:Response response = check http1SseClient->/sse;
+    test:assertEquals(response.getHeader("Connection"), "keep-alive");
+    test:assertEquals(response.getHeader("Content-Type"), "text/event-stream");
+    test:assertEquals(response.getHeader("Transfer-Encoding"), "chunked");
+    test:assertTrue((check response.getHeader("Cache-Control")).startsWith("no-cache"));
     stream<http:SseEvent, error?> actualSseEvents = check response.getSseEventStream();
-    test:assertEquals(check response.getHeader("Connection"), "keep-alive");
-    test:assertEquals(check response.getHeader("Content-Type"), "text/event-stream");
-    test:assertEquals(check response.getHeader("Transfer-Encoding"), "chunked");
-    test:assertTrue((check response.getHeader("Cache-Control")).startsWith("no-cache"), "text/event-stream");
+    stream<http:SseEvent, error?> expectedSseEvents = new (new SseEventGenerator());
+    check assertEventStream(actualSseEvents, expectedSseEvents);
+}
+
+@test:Config {}
+function testHttp2ResponseHeadersForSseEventStream() returns error? {
+    http:Response response = check http2SseClient->/sse.post({});
+    test:assertTrue(response.getHeader("Connection") is http:HeaderNotFoundError);
+    test:assertEquals(response.getHeader("Content-Type"), "text/event-stream");
+    test:assertTrue((check response.getHeader("Cache-Control")).startsWith("no-cache"));
+    stream<http:SseEvent, error?> actualSseEvents = check response.getSseEventStream();
     stream<http:SseEvent, error?> expectedSseEvents = new (new SseEventGenerator());
     check assertEventStream(actualSseEvents, expectedSseEvents);
 }
@@ -118,7 +128,6 @@ function assertEventStream(stream<http:SseEvent, error?> actualSseEvents, stream
         do {
             record {|http:SseEvent value;|}? valueRecord = check actualSseEvents.next();
             http:SseEvent? actualEvent = valueRecord !is () ? valueRecord.value : valueRecord;
-            io:println(actualEvent !is () ? actualEvent.data : (), expectedEvent.data);
             test:assertEquals(actualEvent, expectedEvent);
         };
 }
