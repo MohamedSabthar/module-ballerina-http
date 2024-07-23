@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.http.transport.message;
 
+import io.ballerina.stdlib.http.api.HttpUtil;
 import io.ballerina.stdlib.http.transport.contract.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -38,6 +39,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
+
+import static io.netty.util.internal.StringUtil.LINE_FEED;
 
 /**
  * Provides input and output stream by taking the HttpCarbonMessage.
@@ -133,20 +136,33 @@ public class HttpMessageDataStreamer {
      */
     protected class ByteBufferOutputStream extends OutputStream {
 
-        private ByteBuf dataHolder;
+        private ByteBuf dataHolder = getBuffer();
+        private int lastByte = 0;
 
         @Override
         public void write(int b) {
-            if (dataHolder == null) {
-                dataHolder = getBuffer();
-            }
-            if (dataHolder.writableBytes() != 0) {
-                dataHolder.writeByte((byte) b);
+            if (!HttpUtil.hasEventStreamContentType(httpCarbonMessage) && this.dataHolder.writableBytes() != 0) {
+                // If content type is not text/event-stream do the buffering
+                writeByte(b);
+            } else if (HttpUtil.hasEventStreamContentType(httpCarbonMessage) 
+                && !hasDoubleLineFeed(b) && this.dataHolder.writableBytes() != 0) {
+                // If the content type is text/event-stream, buffer the data until a double line feed
+                // (indicating the end of an event) or until CONTENT_BUFFER_SIZE is reached.
+                writeByte(b);
+            } else if (HttpUtil.hasEventStreamContentType(httpCarbonMessage) && hasDoubleLineFeed(b))  {
+                // If content type is text/event-stream and reached double line feed write http content
+                try {
+                    writeByte(b);
+                    httpCarbonMessage.addHttpContent(new DefaultHttpContent(this.dataHolder));
+                    this.dataHolder = getBuffer();
+                } catch (RuntimeException ex) {
+                    throw new EncoderException(httpCarbonMessage.getIoException());
+                }
             } else {
                 try {
-                    httpCarbonMessage.addHttpContent(new DefaultHttpContent(dataHolder));
-                    dataHolder = getBuffer();
-                    dataHolder.writeByte((byte) b);
+                    httpCarbonMessage.addHttpContent(new DefaultHttpContent(this.dataHolder));
+                    this.dataHolder = getBuffer();
+                    writeByte(b);
                 } catch (RuntimeException ex) {
                     throw new EncoderException(httpCarbonMessage.getIoException());
                 }
@@ -161,8 +177,8 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() {
             try {
-                if (dataHolder != null && dataHolder.isReadable()) {
-                    httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(dataHolder));
+                if (this.dataHolder != null && dataHolder.isReadable()) {
+                    httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(this.dataHolder));
                 } else {
                     httpCarbonMessage.addHttpContent(LastHttpContent.EMPTY_LAST_CONTENT);
                 }
@@ -181,6 +197,15 @@ public class HttpMessageDataStreamer {
             } else {
                 return pooledByteBufAllocator.directBuffer(CONTENT_BUFFER_SIZE);
             }
+        }
+
+        private void writeByte(int b) {
+            this.dataHolder.writeByte((byte) b);
+            this.lastByte = b;
+        }
+
+        private boolean hasDoubleLineFeed(int currentByte) {
+            return currentByte == this.lastByte && this.lastByte == (int) LINE_FEED;
         }
     }
 
