@@ -137,8 +137,9 @@ public isolated client class Caller {
         return nativeGetRemoteHostName(self);
     }
 
-    private isolated function returnResponse(anydata|StatusCodeResponse|Response|stream<SseEvent, error?> message, string? returnMediaType,
-        HttpCacheConfig? cacheConfig, map<Link>? links) returns ListenerError? {
+    private isolated function returnResponse(
+        anydata|StatusCodeResponse|Response|stream<SseEvent, error?>|stream<SseEvent, error> message,
+        string? returnMediaType, HttpCacheConfig? cacheConfig, map<Link>? links) returns ListenerError? {
         Response response = new;
         boolean setETag = cacheConfig is () ? false: cacheConfig.setETag;
         boolean cacheCompatibleType = false;
@@ -168,7 +169,7 @@ public isolated client class Caller {
             if returnMediaType is string && !response.hasHeader(CONTENT_TYPE) {
                 response.setHeader(CONTENT_TYPE, returnMediaType);
             }
-        } else if message is stream<SseEvent, error?> {
+        } else if message is stream<SseEvent, error?>|stream<SseEvent, error> {
             response = createSseResponse(message);
         } else if message is anydata {
             setPayload(message, response, returnMediaType, setETag, links);
@@ -254,7 +255,7 @@ isolated function createStatusCodeResponse(StatusCodeResponse message, string? r
     return response;
 }
 
-isolated function createSseResponse(stream<SseEvent, error?> eventStream) returns Response {
+isolated function createSseResponse(stream<SseEvent, error?>|stream<SseEvent, error> eventStream) returns Response {
     Response response = new;
     response.setSseEventStream(eventStream);
     return response;

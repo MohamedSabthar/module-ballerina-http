@@ -479,7 +479,7 @@ public class Response {
     # headers set to 'text/event-stream' and 'no-cache', respectively.
     #
     # + eventStream - SseEvent stream, which needs to be set to the response
-    public isolated function setSseEventStream(stream<SseEvent, error?> eventStream) {
+    public isolated function setSseEventStream(stream<SseEvent, error?>|stream<SseEvent, error> eventStream) {
         ResponseCacheControl cacheControl = new;
         cacheControl.noCache = true;
         self.cacheControl = cacheControl;

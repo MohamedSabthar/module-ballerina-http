@@ -20,7 +20,7 @@ import ballerina/log;
 const LINE_BREAK = "\n";
 
 class SseEventToByteStreamGenerator {
-    private final stream<SseEvent, error?> eventStream;
+    private final stream<SseEvent, error?>|stream<SseEvent, error> eventStream;
     private boolean isClosed = false;
 
     isolated function init(stream<SseEvent, error?> eventStream) {
