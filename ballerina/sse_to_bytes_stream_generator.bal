@@ -41,9 +41,8 @@ class SseEventToByteStreamGenerator {
             string eventText = getEventText(event.value);
             return {value: eventText.toBytes()};
         } on fail error e {
-            io:Error err = error io:Error("Unable to obtain byte array", e);
-            log:printError(err.message(), e);
-            return err;
+            log:printError("Unable to obtain byte array", e);
+            return ();
         }
     }
 
@@ -57,7 +56,7 @@ isolated function validateSseEvent(SseEvent event) returns error? {
     if !event.hasKey("event") && !event.hasKey("id")
         && !event.hasKey("retry") && !event.hasKey("comment")
         && !event.hasKey("data") {
-        return error("Invalid value provided as event: "
+        return error ("Invalid value provided as event: "
                 + "at least one field is expected to be present in the SseEvent record.");
     }
 }
