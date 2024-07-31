@@ -1,5 +1,5 @@
 [package]
-org = "ballerina"
+org = "sabtharm"
 name = "http"
 version = "2.12.0"
 authors = ["Ballerina"]
