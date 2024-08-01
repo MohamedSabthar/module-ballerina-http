@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 import ballerina/lang.value as val;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/io;
 import ballerina/observe;
 import ballerina/time;

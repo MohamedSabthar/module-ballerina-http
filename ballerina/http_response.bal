@@ -16,7 +16,7 @@
 
 import ballerina/io;
 import ballerina/lang.'string as strings;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/crypto;
 import ballerina/time;
 import ballerina/jballerina.java;

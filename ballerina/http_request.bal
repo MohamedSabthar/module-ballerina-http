@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/lang.array;
 import ballerina/lang.'string as strings;
 import ballerina/log;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/jballerina.java;
 import ballerina/url;
 

@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 import ballerina/lang.runtime as runtime;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/log;
 
 # Represents the inferred failover configurations passed into the failover client.

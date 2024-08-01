@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/mime;
+import sabtharm/mime;
 
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
 public type RequestMessage anydata|Request|mime:Entity[]|stream<byte[], io:Error?>;

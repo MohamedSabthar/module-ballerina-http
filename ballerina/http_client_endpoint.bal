@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/observe;
 import ballerina/time;
 

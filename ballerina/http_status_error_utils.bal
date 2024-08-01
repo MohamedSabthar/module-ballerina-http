@@ -16,7 +16,7 @@
 
 import http.httpscerr;
 import ballerina/jballerina.java;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/time;
 
 # Represents the structure of the HTTP error payload.

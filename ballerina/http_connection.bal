@@ -18,7 +18,7 @@ import ballerina/jballerina.java;
 import ballerina/lang.value as val;
 import ballerina/lang.'string as strings;
 import ballerina/url;
-import ballerina/mime;
+import sabtharm/mime;
 import http.httpscerr;
 
 # The caller actions for responding to client requests.
