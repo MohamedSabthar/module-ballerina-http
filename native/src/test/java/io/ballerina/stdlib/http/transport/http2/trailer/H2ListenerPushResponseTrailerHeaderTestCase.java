@@ -60,7 +60,7 @@ public class H2ListenerPushResponseTrailerHeaderTestCase extends TrailerHeaderTe
         ListenerConfiguration listenerConfiguration = Http2Util.getH2CListenerConfiguration();
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar;q=0.8");
-        trailers.add("jkl", "ballerina");
+        trailers.add("jkl", "sabtharm");
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.PUSH_RESPONSE);
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
@@ -95,7 +95,7 @@ public class H2ListenerPushResponseTrailerHeaderTestCase extends TrailerHeaderTe
         assertTrue(result.contains(promisedPath), "Promised response not received");
         assertEquals(promisedResponse.getHeaders().get("Trailer"), "foo, jkl");
         assertEquals(promisedResponse.getTrailerHeaders().get("foo"), "bar;q=0.8");
-        assertEquals(promisedResponse.getTrailerHeaders().get("jkl"), "ballerina");
+        assertEquals(promisedResponse.getTrailerHeaders().get("jkl"), "sabtharm");
     }
 
     @AfterClass

@@ -57,7 +57,7 @@ public class H2ListenerIntendedResponseTrailerHeaderTestCase extends TrailerHead
         ListenerConfiguration listenerConfiguration = Http2Util.getH2CListenerConfiguration();
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar");
-        trailers.add("baz", "ballerina");
+        trailers.add("baz", "sabtharm");
         trailers.add("Max-forwards", "five");
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.RESPONSE);
 
@@ -96,7 +96,7 @@ public class H2ListenerIntendedResponseTrailerHeaderTestCase extends TrailerHead
         assertEquals(result, expectedValue, "Expected response not received");
         assertEquals(response.getHeaders().get("Trailer"), "foo, baz, Max-forwards");
         assertEquals(response.getTrailerHeaders().get("foo"), "bar");
-        assertEquals(response.getTrailerHeaders().get("baz"), "ballerina");
+        assertEquals(response.getTrailerHeaders().get("baz"), "sabtharm");
         assertEquals(response.getTrailerHeaders().get("Max-forwards"), "five");
     }
 

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 import ballerina/http_test_common as common;
 

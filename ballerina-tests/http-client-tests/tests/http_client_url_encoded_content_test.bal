@@ -18,7 +18,7 @@
 
 import ballerina/http;
 import ballerina/url;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 
 final http:Client clientUrlEncodedTestClient = check new(string`http://localhost:${clientFormUrlEncodedTestPort.toString()}/databinding`, httpVersion = http:HTTP_1_1);

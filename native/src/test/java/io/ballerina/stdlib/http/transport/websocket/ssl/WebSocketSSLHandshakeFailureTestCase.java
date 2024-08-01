@@ -52,7 +52,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketSSLHandshakeFailureTestCase {
 
-    private String password = "ballerina";
+    private String password = "sabtharm";
     private String tlsStoreType = "PKCS12";
     private HttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;

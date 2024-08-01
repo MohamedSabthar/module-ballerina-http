@@ -75,7 +75,7 @@ public class MBeanRegistrar {
 
         String jmxAgentName = System.getProperty(Constants.JMX_AGENT_NAME);
         if (jmxAgentName == null || jmxAgentName.isEmpty()) {
-            jmxAgentName = "ballerina";
+            jmxAgentName = "sabtharm";
         }
         return jmxAgentName + ":Type=" + category + ",Name=" + id;
     }

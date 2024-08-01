@@ -24,7 +24,7 @@ package io.ballerina.stdlib.http.compiler;
 public final class Constants {
     private Constants() {}
 
-    public static final String BALLERINA = "ballerina";
+    public static final String BALLERINA = "sabtharm";
     public static final String HTTP = "http";
     public static final String SERVICE_KEYWORD = "service";
     public static final String REMOTE_KEYWORD = "remote";

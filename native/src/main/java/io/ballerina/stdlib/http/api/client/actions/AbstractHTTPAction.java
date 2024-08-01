@@ -238,7 +238,7 @@ public abstract class AbstractHTTPAction {
         if (CACHE_BALLERINA_VERSION != null) {
             userAgent = "ballerina/" + CACHE_BALLERINA_VERSION;
         } else {
-            userAgent = "ballerina";
+            userAgent = "sabtharm";
         }
 
         if (!headers.contains(HttpHeaderNames.USER_AGENT)) { // If User-Agent is not already set from program

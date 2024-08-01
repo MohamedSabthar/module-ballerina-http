@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/mime;
+import sabtharm/mime;
 
 type Person record {|
     readonly int id;

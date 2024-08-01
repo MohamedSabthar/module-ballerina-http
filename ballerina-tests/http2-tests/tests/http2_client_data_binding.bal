@@ -17,7 +17,7 @@
 import ballerina/lang.runtime as runtime;
 import ballerina/test;
 import ballerina/http;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/url;
 import ballerina/lang.'string as strings;
 import ballerina/http_test_common as common;

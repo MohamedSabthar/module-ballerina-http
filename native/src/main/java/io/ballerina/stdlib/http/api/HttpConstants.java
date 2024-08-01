@@ -83,7 +83,7 @@ public final class HttpConstants {
     public static final String DISABLE = "disable";
     public static final String DEFAULT_HOST = "b7a.default";
 
-    public static final String HTTP_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "http";
+    public static final String HTTP_PACKAGE_PATH = "sabtharm" + ORG_NAME_SEPARATOR + "http";
 
     public static final BString HTTP_REQUEST_METHOD = StringUtils.fromString("method");
     public static final String HTTP_METHOD_GET = "GET";
@@ -630,7 +630,7 @@ public final class HttpConstants {
 
     @Deprecated
     public static final String HTTP_MODULE_VERSION = "1.0.6";
-    public static final String PACKAGE = "ballerina";
+    public static final String PACKAGE = "sabtharm";
 
     @Deprecated
     public static final String PROTOCOL_PACKAGE_HTTP =

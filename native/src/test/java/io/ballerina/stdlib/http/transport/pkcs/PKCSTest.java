@@ -43,7 +43,7 @@ public class PKCSTest {
     private static final Logger LOG = LoggerFactory.getLogger(PKCSTest.class);
 
     private static HttpClientConnector httpClientConnector;
-    private String password = "ballerina";
+    private String password = "sabtharm";
     private String tlsStoreType = "PKCS12";
     private HttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/mime;
+import sabtharm/mime;
 
 class Query {}
 

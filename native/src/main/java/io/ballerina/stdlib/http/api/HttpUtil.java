@@ -1737,7 +1737,7 @@ public class HttpUtil {
         if (version != null) {
             userAgent = "ballerina/" + version;
         } else {
-            userAgent = "ballerina";
+            userAgent = "sabtharm";
         }
         return userAgent;
     }

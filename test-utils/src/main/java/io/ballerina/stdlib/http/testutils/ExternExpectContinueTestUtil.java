@@ -227,7 +227,7 @@ public class ExternExpectContinueTestUtil {
 
         Map<String, String> formData = new HashMap<>();
         formData.put("person", "engineer");
-        formData.put("team", "ballerina");
+        formData.put("team", "sabtharm");
 
         HttpResponse response = null;
         try {

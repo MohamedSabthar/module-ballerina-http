@@ -16,7 +16,7 @@
 
 import ballerina/lang.'string as strings;
 import ballerina/url;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 import ballerina/time;
 

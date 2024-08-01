@@ -54,7 +54,7 @@ public class NegativeListenerResponseTrailerHeaderTestCase extends TrailerHeader
 
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar");
-        trailers.add("baz", "ballerina");
+        trailers.add("baz", "sabtharm");
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.RESPONSE);
     }
 

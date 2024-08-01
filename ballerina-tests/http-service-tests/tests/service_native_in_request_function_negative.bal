@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 import ballerina/http;
 

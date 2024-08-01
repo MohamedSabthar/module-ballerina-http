@@ -70,7 +70,7 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
 
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "xyz");
-        trailers.add("bar", "ballerina");
+        trailers.add("bar", "sabtharm");
         trailers.add("Max-forwards", "five");
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.RESPONSE);
 
@@ -125,7 +125,7 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
 
         assertEquals(response.getHeader("Trailer"), "foo, bar, Max-forwards");
         assertEquals(response.getTrailerHeaders().get("foo"), "xyz");
-        assertEquals(response.getTrailerHeaders().get("bar"), "ballerina");
+        assertEquals(response.getTrailerHeaders().get("bar"), "sabtharm");
         assertEquals(response.getTrailerHeaders().get("Max-forwards"), "five");
     }
 
@@ -134,7 +134,7 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
         DefaultLastHttpContent lastHttpContent = new DefaultLastHttpContent();
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
         trailers.add("foo", "xyz");
-        trailers.add("bar", "ballerina");
+        trailers.add("bar", "sabtharm");
         trailers.add("Max-forwards", "five");
         HttpCarbonMessage outboundResponseMsg = new HttpCarbonMessage(
                 new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
@@ -142,7 +142,7 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
 
         assertEquals(lastHttpContent.trailingHeaders().size(), 0);
         assertEquals(outboundResponseMsg.getTrailerHeaders().get("foo"), "xyz");
-        assertEquals(outboundResponseMsg.getTrailerHeaders().get("bar"), "ballerina");
+        assertEquals(outboundResponseMsg.getTrailerHeaders().get("bar"), "sabtharm");
         assertEquals(outboundResponseMsg.getTrailerHeaders().get("Max-forwards"), "five");
     }
 

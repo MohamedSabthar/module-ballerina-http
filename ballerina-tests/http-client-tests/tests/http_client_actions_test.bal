@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/lang.'string as strings;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 import ballerina/http_test_common as common;
 

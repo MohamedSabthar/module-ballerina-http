@@ -67,7 +67,7 @@ public class HttpServiceTest {
     public void testNotNullServiceBasePath() {
         BObject service = TestUtils.getNewServiceObject("hello");
         HttpService httpService = new HttpService(service);
-        httpService.setBasePath("ballerina");
+        httpService.setBasePath("sabtharm");
 
         Assert.assertEquals(httpService.getBasePath(), "/ballerina");
     }

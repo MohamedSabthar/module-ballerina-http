@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 
 service /api on new http:Listener(resBindingAdvancedPort) {

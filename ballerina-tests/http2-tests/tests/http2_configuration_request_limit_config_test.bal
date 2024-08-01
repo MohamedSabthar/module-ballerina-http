@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/test;
 import ballerina/http;
 import ballerina/http_test_common as common;

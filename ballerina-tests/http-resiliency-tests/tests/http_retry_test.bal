@@ -17,7 +17,7 @@
 import ballerina/jballerina.java;
 import ballerina/lang.runtime as runtime;
 // import ballerina/log;
-import ballerina/mime;
+import sabtharm/mime;
 import ballerina/io;
 import ballerina/test;
 import ballerina/http;

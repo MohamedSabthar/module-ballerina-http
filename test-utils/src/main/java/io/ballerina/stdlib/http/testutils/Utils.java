@@ -68,7 +68,7 @@ public final class Utils {
         KeyStore ks;
         try (InputStream is = new FileInputStream(keyStore)) {
             ks = KeyStore.getInstance("PKCS12");
-            ks.load(is, "ballerina".toCharArray());
+            ks.load(is, "sabtharm".toCharArray());
         }
 
         return ks;

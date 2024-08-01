@@ -107,7 +107,7 @@ public class ServerCloseConnectionDuringSslTest {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         String trustStoreFile = "/simple-test-config/client-truststore.p12";
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
-        String password = "ballerina";
+        String password = "sabtharm";
         senderConfiguration.setTrustStorePass(password);
         String tlsStoreType = "PKCS12";
         senderConfiguration.setTLSStoreType(tlsStoreType);
