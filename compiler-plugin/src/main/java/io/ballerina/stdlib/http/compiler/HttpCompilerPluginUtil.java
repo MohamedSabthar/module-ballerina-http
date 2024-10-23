@@ -365,7 +365,8 @@ public final class HttpCompilerPluginUtil {
             return null;
         }
         ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) ctx.node();
-        Optional<Symbol> serviceContractType = ctx.semanticModel().types().getTypeByName(BALLERINA, HTTP, EMPTY, HTTP_SERVICE_TYPE);
+        Optional<Symbol> serviceContractType = ctx.semanticModel().types()
+                .getTypeByName(BALLERINA, HTTP, EMPTY, HTTP_SERVICE_TYPE);
         if (!hasServiceKeyWord(classDefinitionNode) || serviceContractType.isEmpty()) {
             return null;
         }

@@ -20,8 +20,8 @@ package io.ballerina.stdlib.http.compiler.staticcodeanalyzer;
 
 import io.ballerina.scan.Rule;
 
-import static io.ballerina.scan.RuleKind.*;
-import static io.ballerina.stdlib.http.compiler.staticcodeanalyzer.RuleFactory.*;
+import static io.ballerina.scan.RuleKind.VULNERABILITY;
+import static io.ballerina.stdlib.http.compiler.staticcodeanalyzer.RuleFactory.createRule;
 
 public enum HttpRule {
     AVOID_DEFAULT_RESOURCE_ACCESSOR(createRule(1, "Avoid allowing default resource accessor", VULNERABILITY)),

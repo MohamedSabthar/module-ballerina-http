@@ -34,8 +34,6 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.stdlib.http.compiler.CompilerPluginTestConstants.*;
-
 /**
  * This class includes tests for Ballerina Http compiler plugin.
  */

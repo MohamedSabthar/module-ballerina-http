@@ -18,7 +18,13 @@
 
 package io.ballerina.stdlib.http.compiler.staticcodeanalyzer;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
