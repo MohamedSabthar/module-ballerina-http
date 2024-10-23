@@ -56,34 +56,27 @@ public class HttpAnnotationAnalyzer implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private void validateAnnotationValue(MappingConstructorExpressionNode annotationValueMap, Document document) {
         Optional<SpecificFieldNode> corsField = findSpecificField(annotationValueMap, CORS_FIELD_NAME);
-        if (corsField.isEmpty()) {
+        if (corsField.isEmpty() || corsField.get().valueExpr().isEmpty()) {
             return;
         }
-        Optional<ExpressionNode> corsVal = corsField.get().valueExpr();
-        if (corsVal.isEmpty()) {
+        ExpressionNode corsVal = corsField.get().valueExpr().get();
+        if (corsVal.kind() != SyntaxKind.MAPPING_CONSTRUCTOR) {
             return;
         }
-        if (corsVal.get().kind() != SyntaxKind.MAPPING_CONSTRUCTOR) {
-            return;
-        }
-        MappingConstructorExpressionNode corsMap = (MappingConstructorExpressionNode) corsVal.get();
+        MappingConstructorExpressionNode corsMap = (MappingConstructorExpressionNode) corsVal;
         Optional<SpecificFieldNode> allowOrigins = findSpecificField(corsMap, ALLOW_ORIGINS_FIELD_NAME);
-        if (allowOrigins.isEmpty()) {
+        if (allowOrigins.isEmpty() || allowOrigins.get().valueExpr().isEmpty()) {
             return;
         }
-
-        Optional<ExpressionNode> allowOriginsValue = allowOrigins.get().valueExpr();
-        if (allowOriginsValue.isEmpty()) {
+        ExpressionNode allowOriginsValue = allowOrigins.get().valueExpr().get();
+        if (allowOriginsValue.kind() != SyntaxKind.LIST_CONSTRUCTOR) {
             return;
         }
-        if (allowOriginsValue.get().kind() != SyntaxKind.LIST_CONSTRUCTOR) {
-            return;
-        }
-        checkForPermissiveCors((ListConstructorExpressionNode) allowOriginsValue.get(), document);
+        checkForPermissiveCors((ListConstructorExpressionNode) allowOriginsValue, document);
     }
 
-    private Optional<SpecificFieldNode> findSpecificField(MappingConstructorExpressionNode node, String fieldName) {
-        return node.fields().stream()
+    private Optional<SpecificFieldNode> findSpecificField(MappingConstructorExpressionNode mapNode, String fieldName) {
+        return mapNode.fields().stream()
                 .filter(field -> field.kind() == SyntaxKind.SPECIFIC_FIELD).map(field -> (SpecificFieldNode) field)
                 .filter(field -> fieldName.equals(field.fieldName().toSourceCode().trim())).findFirst();
     }
