@@ -20,6 +20,7 @@ package io.ballerina.stdlib.http.compiler;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
@@ -32,7 +33,9 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -47,12 +50,18 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLASS_DEFINITION;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.RESOURCE_ACCESSOR_DECLARATION;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
+import static io.ballerina.stdlib.http.compiler.Constants.*;
 import static io.ballerina.stdlib.http.compiler.Constants.ANYDATA;
 import static io.ballerina.stdlib.http.compiler.Constants.ARRAY_OF_MAP_OF_ANYDATA;
 import static io.ballerina.stdlib.http.compiler.Constants.BALLERINA;
@@ -62,6 +71,7 @@ import static io.ballerina.stdlib.http.compiler.Constants.BYTE_ARRAY;
 import static io.ballerina.stdlib.http.compiler.Constants.CALLER_OBJ_NAME;
 import static io.ballerina.stdlib.http.compiler.Constants.DECIMAL;
 import static io.ballerina.stdlib.http.compiler.Constants.DECIMAL_ARRAY;
+import static io.ballerina.stdlib.http.compiler.Constants.DEFAULT;
 import static io.ballerina.stdlib.http.compiler.Constants.EMPTY;
 import static io.ballerina.stdlib.http.compiler.Constants.ERROR;
 import static io.ballerina.stdlib.http.compiler.Constants.FLOAT;
@@ -348,6 +358,29 @@ public final class HttpCompilerPluginUtil {
         return serviceDeclarationNode;
     }
 
+    public static ClassDefinitionNode getServiceClassDefinitionNode(SyntaxNodeAnalysisContext ctx) {
+        if (ctx.node().kind() != CLASS_DEFINITION) {
+            return null;
+        }
+        ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) ctx.node();
+        Optional<Symbol> serviceContractType = ctx.semanticModel().types().getTypeByName(BALLERINA, HTTP, EMPTY, HTTP_SERVICE_TYPE);
+        if (!hasServiceKeyWord(classDefinitionNode) || serviceContractType.isEmpty()) {
+            return null;
+        }
+        Optional<Symbol> symbol = ctx.semanticModel().symbol(classDefinitionNode);
+        if (symbol.isEmpty() || serviceContractType.get().kind() != TYPE_DEFINITION) {
+            return null;
+        }
+        ClassSymbol classSymbol = (ClassSymbol) symbol.get();
+        TypeSymbol serviceType = ((TypeDefinitionSymbol) serviceContractType.get()).typeDescriptor();
+        return classSymbol.subtypeOf(serviceType) ? classDefinitionNode : null;
+    }
+
+    private static boolean hasServiceKeyWord(ClassDefinitionNode classDefinitionNode) {
+        return classDefinitionNode.classTypeQualifiers()
+                .stream().anyMatch(token -> SERVICE_KEYWORD.equals(token.text().trim()));
+    }
+
     private static boolean isListenerBelongsToHttpModule(TypeSymbol listenerType) {
         if (listenerType.typeKind() == TypeDescKind.UNION) {
             return ((UnionTypeSymbol) listenerType).memberTypeDescriptors().stream()
@@ -386,5 +419,22 @@ public final class HttpCompilerPluginUtil {
         }
 
         return serviceObjTypeDef.typeDescriptor().subtypeOf(serviceContractTypeDef.typeDescriptor());
+    }
+
+
+    public static List<ResourceFunction> getResourceMethodWithDefaultAccessor(NodeList<Node> members) {
+        List<ResourceFunction> resourceFunctions = new ArrayList<>();
+        for (Node member : members) {
+            if (member.kind() != RESOURCE_ACCESSOR_DEFINITION && member.kind() != RESOURCE_ACCESSOR_DECLARATION) {
+                continue;
+            }
+            ResourceFunction resourceFunction = member.kind() == RESOURCE_ACCESSOR_DEFINITION
+                    ? new ResourceFunctionDefinition((FunctionDefinitionNode) member)
+                    : new ResourceFunctionDeclaration((MethodDeclarationNode) member);
+            if (DEFAULT.equalsIgnoreCase(resourceFunction.functionName().text().trim())) {
+                resourceFunctions.add(resourceFunction);
+            }
+        }
+        return resourceFunctions;
     }
 }
