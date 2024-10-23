@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.scan.Reporter;
+import io.ballerina.stdlib.http.compiler.HttpCompilerPluginUtil;
 
 import static io.ballerina.stdlib.http.compiler.HttpCompilerPluginUtil.isHttpServiceType;
 
@@ -31,12 +32,12 @@ public class HttpServiceObjectTypeAnalyzer extends HttpServiceAnalyzer {
     }
 
     @Override
-    public void perform(SyntaxNodeAnalysisContext ctx) {
-        if (!isHttpServiceType(ctx.semanticModel(), ctx.node())) {
+    public void perform(SyntaxNodeAnalysisContext context) {
+        if (!isHttpServiceType(context.semanticModel(), context.node())) {
             return;
         }
-        ObjectTypeDescriptorNode serviceObjectType = (ObjectTypeDescriptorNode) ctx.node();
-        Document document = ctx.currentPackage().module(ctx.moduleId()).document(ctx.documentId());
+        ObjectTypeDescriptorNode serviceObjectType = (ObjectTypeDescriptorNode) context.node();
+        Document document = HttpCompilerPluginUtil.getDocument(context);
         validateServiceMembers(serviceObjectType.members(), document);
     }
 }

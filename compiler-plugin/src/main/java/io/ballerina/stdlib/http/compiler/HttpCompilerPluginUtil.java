@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -58,10 +59,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.ANNOTATION;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLASS_DEFINITION;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.RESOURCE_ACCESSOR_DECLARATION;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
-import static io.ballerina.stdlib.http.compiler.Constants.*;
+import static io.ballerina.stdlib.http.compiler.Constants.SERVICE_KEYWORD;
 import static io.ballerina.stdlib.http.compiler.Constants.ANYDATA;
 import static io.ballerina.stdlib.http.compiler.Constants.ARRAY_OF_MAP_OF_ANYDATA;
 import static io.ballerina.stdlib.http.compiler.Constants.BALLERINA;
@@ -376,6 +378,21 @@ public final class HttpCompilerPluginUtil {
         return classSymbol.subtypeOf(serviceType) ? classDefinitionNode : null;
     }
 
+    public static AnnotationNode getAnnotationNode(SyntaxNodeAnalysisContext context) {
+        if (context.node().kind() != ANNOTATION) {
+            return null;
+        }
+        Optional<Symbol> symbol = context.semanticModel().symbol(context.node());
+        if (symbol.isEmpty()) {
+            return null;
+        }
+        Optional<ModuleSymbol> module = symbol.get().getModule();
+        if (module.isEmpty() || !isHttpModule(module.get())) {
+            return null;
+        }
+        return (AnnotationNode) context.node();
+    }
+
     private static boolean hasServiceKeyWord(ClassDefinitionNode classDefinitionNode) {
         return classDefinitionNode.classTypeQualifiers()
                 .stream().anyMatch(token -> SERVICE_KEYWORD.equals(token.text().trim()));
@@ -436,5 +453,9 @@ public final class HttpCompilerPluginUtil {
             }
         }
         return resourceFunctions;
+    }
+
+    public static Document getDocument(SyntaxNodeAnalysisContext context) {
+        return context.currentPackage().module(context.moduleId()).document(context.documentId());
     }
 }

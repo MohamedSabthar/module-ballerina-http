@@ -30,12 +30,12 @@ public class HttpServiceClassAnalyzer extends HttpServiceAnalyzer {
     }
 
     @Override
-    public void perform(SyntaxNodeAnalysisContext ctx) {
-        ClassDefinitionNode serviceClassDefinitionNode = HttpCompilerPluginUtil.getServiceClassDefinitionNode(ctx);
+    public void perform(SyntaxNodeAnalysisContext context) {
+        ClassDefinitionNode serviceClassDefinitionNode = HttpCompilerPluginUtil.getServiceClassDefinitionNode(context);
         if (serviceClassDefinitionNode == null) {
             return;
         }
-        Document document = ctx.currentPackage().module(ctx.moduleId()).document(ctx.documentId());
+        Document document = HttpCompilerPluginUtil.getDocument(context);
         validateServiceMembers(serviceClassDefinitionNode.members(), document);
     }
 }
