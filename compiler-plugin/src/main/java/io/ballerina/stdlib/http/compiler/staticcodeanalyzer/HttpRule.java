@@ -40,4 +40,10 @@ public enum HttpRule {
     public Rule getRule() {
         return this.rule;
     }
+
+    @Override
+    public String toString() {
+        return "{\"id\":" + this.getId() + ", \"kind\":\"" + this.rule.kind() + "\"," +
+                " \"description\" : \"" + this.rule.description() + "\"}";
+    }
 }

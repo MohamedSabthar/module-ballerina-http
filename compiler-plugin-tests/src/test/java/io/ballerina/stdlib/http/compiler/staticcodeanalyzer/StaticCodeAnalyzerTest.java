@@ -30,8 +30,10 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class includes tests for Ballerina Http static code analyzer.
@@ -44,6 +46,8 @@ public class StaticCodeAnalyzerTest {
             get("src", "test", "resources", "static_code_analyzer", "expected_output").toAbsolutePath();
     private static final Path BALLERINA_PATH = Paths
             .get("../", "target", "ballerina-runtime", "bin", "bal").toAbsolutePath();
+    private static final Path JSON_RULES_FILE_PATH = Paths
+            .get("../", "compiler-plugin", "src", "main", "resources", "rules.json").toAbsolutePath();
 
     @BeforeSuite
     public void pullScanTool() throws IOException, InterruptedException {
@@ -56,6 +60,13 @@ public class StaticCodeAnalyzerTest {
             return;
         }
         Assert.assertFalse(ExitCode.hasFailure(exitCode));
+    }
+
+    @Test
+    public void validateRulesJson() throws IOException, InterruptedException {
+        String expectedRules = "[" + Arrays.stream(HttpRule.values()).map(HttpRule::toString).collect(Collectors.joining(",")) + "]";
+        String actualRules = Files.readString(JSON_RULES_FILE_PATH);
+        assertJsonEqual(normalizeJson(actualRules), normalizeJson(expectedRules));
     }
 
     @Test
