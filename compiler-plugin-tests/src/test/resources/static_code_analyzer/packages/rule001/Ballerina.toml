@@ -1,0 +1,8 @@
+[package]
+org = "ballerina"
+name = "rule001"
+version = "2.13.0"
+
+[platform.java17]
+graalvmCompatible = true
+

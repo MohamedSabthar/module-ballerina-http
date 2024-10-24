@@ -18,77 +18,89 @@
 
 package io.ballerina.stdlib.http.compiler.staticcodeanalyzer;
 
-import io.ballerina.projects.DiagnosticResult;
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.stdlib.http.compiler.CompilerPluginTestConstants;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.testng.internal.ExitCode;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * This class includes tests for Ballerina Http compiler plugin.
+ * This class includes tests for Ballerina Http static code analyzer.
  */
 public class StaticCodeAnalyzerTest {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources", "ballerina_sources")
-            .toAbsolutePath();
-    private static final Path DISTRIBUTION_PATH = Paths.get("../", "target", "ballerina-runtime")
-            .toAbsolutePath();
+    private static final Path RESOURCE_PACKAGES_DIRECTORY = Paths
+            .get("src", "test", "resources", "static_code_analyzer", "packages").toAbsolutePath();
+    private static final Path EXPECTED_JSON_OUTPUT_DIRECTORY = Paths.
+            get("src", "test", "resources", "static_code_analyzer", "expected_output").toAbsolutePath();
+    private static final Path BALLERINA_PATH = Paths
+            .get("../", "target", "ballerina-runtime", "bin", "bal").toAbsolutePath();
 
-    private static final String REMOTE_METHODS_NOT_ALLOWED = "remote methods are not allowed in http:Service";
-
-    private Package loadPackage(String path) {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
-        BuildProject project = BuildProject.load(getEnvironmentBuilder(), projectDirPath);
-        return project.currentPackage();
-    }
-
-    private static ProjectEnvironmentBuilder getEnvironmentBuilder() {
-        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(DISTRIBUTION_PATH).build();
-        return ProjectEnvironmentBuilder.getBuilder(environment);
-    }
-
-    private void assertError(DiagnosticResult diagnosticResult, int index, String message, String code) {
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[index];
-        Assert.assertEquals(diagnostic.diagnosticInfo().messageFormat(), message);
-        if (code != null) {
-            Assert.assertEquals(diagnostic.diagnosticInfo().code(), code);
+    @BeforeSuite
+    public void pullScanTool() throws IOException, InterruptedException {
+        String scanToolWithVersion = "scan:0.1.0";
+        ProcessBuilder processBuilder = new ProcessBuilder(BALLERINA_PATH.toString(), "tool", "pull", scanToolWithVersion, "--repository=local");
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+        String output = convertInputStreamToString(process.getInputStream());
+        if (output.startsWith("tool '" + scanToolWithVersion + "' is already active.")) {
+            return;
         }
-    }
-
-    private void assertTrue(DiagnosticResult diagnosticResult, int index, String message, String code) {
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[index];
-        Assert.assertTrue(diagnostic.diagnosticInfo().messageFormat().contains(message));
-        Assert.assertEquals(diagnostic.diagnosticInfo().code(), code);
-    }
-
-    private void assertErrorPosition(DiagnosticResult diagnosticResult, int index, String lineRange) {
-        Diagnostic diagnostic = (Diagnostic) diagnosticResult.errors().toArray()[index];
-        Assert.assertEquals(diagnostic.location().lineRange().toString(), lineRange);
+        Assert.assertFalse(ExitCode.hasFailure(exitCode));
     }
 
     @Test
-    public void testInvalidMethodTypes() {
-        Package currentPackage = loadPackage("sample_package_1");
-        PackageCompilation compilation = currentPackage.getCompilation();
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        long availableErrors = diagnosticResult.diagnostics().stream()
-                .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)).count();
-        Assert.assertEquals(availableErrors, 3);
-        diagnosticResult.diagnostics().forEach(result -> {
-            if (result.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                Assert.assertEquals(result.diagnosticInfo().messageFormat(), REMOTE_METHODS_NOT_ALLOWED);
-                Assert.assertEquals(result.diagnosticInfo().code(), CompilerPluginTestConstants.HTTP_101);
+    public void testTool() throws IOException, InterruptedException {
+        String output = executeScanProcess("rule001");
+        Pattern pattern = Pattern.compile("\\[[^]]*]");
+        Matcher match = pattern.matcher(output);
+        Assert.assertTrue(match.find());
+        String jsonOutput = match.group();
+        String expectedJson = Files.readString(EXPECTED_JSON_OUTPUT_DIRECTORY.resolve("rule001.json"));
+        assertJsonEqual(jsonOutput, expectedJson);
+    }
+
+    public static String executeScanProcess(String targetPackage) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder2 = new ProcessBuilder(BALLERINA_PATH.toString(), "scan");
+        processBuilder2.directory(RESOURCE_PACKAGES_DIRECTORY.resolve(targetPackage).toFile());
+        Process process2 = processBuilder2.start();
+        int exitCode = process2.waitFor();
+        Assert.assertFalse(ExitCode.hasFailure(exitCode));
+        return convertInputStreamToString(process2.getInputStream());
+    }
+
+    public static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line).append(System.lineSeparator());
             }
-        });
+        }
+        return stringBuilder.toString();
+    }
+
+    private void assertJsonEqual(String actual, String expected) {
+        Assert.assertEquals(normalizeJson(actual), normalizeJson(expected));
+    }
+
+    private static String normalizeJson(String json) {
+        return json.replaceAll("\\s*\"\\s*", "\"")
+                .replaceAll("\\s*:\\s*", ":")
+                .replaceAll("\\s*,\\s*", ",")
+                .replaceAll("\\s*\\{\\s*", "{")
+                .replaceAll("\\s*}\\s*", "}")
+                .replaceAll("\\s*\\[\\s*", "[")
+                .replaceAll("\\s*]\\s*", "]")
+                .replaceAll("\n", "");
     }
 }
